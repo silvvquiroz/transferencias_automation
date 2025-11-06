@@ -1,6 +1,7 @@
 package steps;
 
 import io.cucumber.java.en.*;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.*;
@@ -12,12 +13,13 @@ public class ApiSteps {
 
     @Given("la API está disponible")
     public void la_api_esta_disponible() {
-        baseURI = "https://jsonplaceholder.typicode.com";
+        baseURI = "http://localhost:3000";
     }
 
-    @When("hago una petición GET a {string}")
-    public void hago_peticion_get(String endpoint) {
-        response = get(endpoint);
+    @When("el usuario hace una petición POST a {string}  con el siguiente contenido en JSON:")
+    public void usuario_hace_peticion_post(String endpoint, String jsonBody) {
+
+        response = given().contentType(ContentType.JSON).body(jsonBody).when().post(endpoint);
     }
 
     @Then("el código de respuesta debe ser {int}")
@@ -25,15 +27,9 @@ public class ApiSteps {
         assertEquals(statusCode, response.getStatusCode());
     }
 
-    @And("el campo {string} debe ser {int}")
-    public void verificar_campo(String campo, int valorEsperado) {
-        int valor = response.jsonPath().getInt(campo);
+    @And("el {string} de respuesta debe ser {string}")
+    public void verificar_campo(String campo, String valorEsperado) {
+        String valor = response.jsonPath().getString(campo);
         assertEquals(valorEsperado, valor);
     }
-
-    @And("el campo {string} debe ser {string}")
-    public void verificar_name(String campo, String valorEsperado) {
-    String valor = response.jsonPath().getString(campo);
-    assertEquals(valorEsperado, valor);
-}
 }
